@@ -1,3 +1,56 @@
 --Rain Hub
 --服务器分类执行(自愿漏库)
-local NotificationService=game:GetService("StarterGui")local PLACE_ID=game.PlaceId;local function DisplayNotification(content)NotificationService:SetCore("SendNotification",{Title="Rain HUB",Text=content,Duration=5,Icon="rbxassetid://121037083128250"})end;local GameDatabase={{id=7239319209,metadata={displayName="ohio",versionTag="1.0"},execute=function()DisplayNotification("我正在做 只是不会很强")end},{id=79546208627805,metadata={displayName="99夜大厅",versionTag="1.2"},execute=function()DisplayNotification("当前服务器为:99夜\n请进入组队后再执行此脚本")end},{id=126509999114328,metadata={displayName="99夜",versionTag="1.1"},execute=function()loadstring(game:HttpGet("https://raw.githubusercontent.com/ParKe001/ParKe/refs/heads/main/Rian%20Hub/99night"))()end}};local GameDetector={}function GameDetector:initialize()print(PLACE_ID)self:processGameDetection()end;function GameDetector:processGameDetection()local matchedGame=self:findGameByPlaceId(PLACE_ID)if matchedGame then self:launchGameScript(matchedGame)else DisplayNotification("暂时未添加这个服务器")end end;function GameDetector:findGameByPlaceId(targetId)for _,gameEntry in ipairs(GameDatabase)do if gameEntry.id==targetId then return gameEntry end end;return nil end;function GameDetector:launchGameScript(gameEntry)local executionSuccessful,errorDetails=pcall(function()gameEntry.execute()end)end;local function Main()local detector=GameDetector;detector:initialize()end;Main()
+
+local function RainHub(message)
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "Rain HUB",
+        Text = message,
+        Duration = 5,
+        Icon = "rbxassetid://121037083128250" 
+    })
+end
+local GameDetector = {}
+
+GameDetector.GameList = {
+    [7239319209] = {
+        name = "ohio",
+        version = "1.0",
+        script = function()
+            RainHUB("我正在做 只是不会很强")
+        end
+    },
+    
+    [79546208627805] = {
+        name = "99夜大厅",
+        version = "1.2",
+        script = function()
+            RainHub("当前服务器为:99夜\n请进入组队后再执行此脚本")
+        end
+    },
+    
+    [126509999114328] = {
+        name = "99夜",
+        version = "1.1",
+        script = function()
+ loadstring(game:HttpGet("https://raw.githubusercontent.com/ParKe001/ParKe/refs/heads/main/Rian%20Hub/99night"))()        end
+    }
+}
+
+function GameDetector:Start()
+    local currentGameId = game.PlaceId
+    print(currentGameId)
+    
+    local gameConfig = self.GameList[currentGameId]
+    
+    if gameConfig then
+        
+        local success, errorMsg = pcall(gameConfig.script)
+        if not success then
+        else
+        end
+    else
+        RainHub("暂时未添加这个服务器")
+    end
+end
+
+GameDetector:Start()
