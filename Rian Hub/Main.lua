@@ -9,6 +9,7 @@ local function RainHub(message)
         Icon = "rbxassetid://121037083128250" 
     })
 end
+
 local GameDetector = {}
 
 GameDetector.GameList = {
@@ -32,7 +33,16 @@ GameDetector.GameList = {
         name = "99夜",
         version = "1.1",
         script = function()
- loadstring(game:HttpGet("https://raw.githubusercontent.com/ParKe001/ParKe/refs/heads/main/Rian%20Hub/99night"))()        end
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/ParKe001/ParKe/refs/heads/main/Rian%20Hub/99night"))()
+        end
+    },
+    
+    [3101667897] = { 
+        name = "极速传奇",
+        version = "1.1",
+        script = function()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/ParKe001/ParKe/refs/heads/main/Rian%20Hub/Jisulegend"))()
+        end
     }
 }
 
@@ -46,7 +56,8 @@ function GameDetector:Start()
         
         local success, errorMsg = pcall(gameConfig.script)
         if not success then
-        else
+            RainHub("脚本执行错误: " .. tostring(errorMsg))
+            warn("脚本错误:", errorMsg)
         end
     else
         RainHub("暂时未添加这个服务器")
