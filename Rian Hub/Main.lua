@@ -16,7 +16,7 @@ GameDetector.GameList = {
         name = "ohio",
         version = "1.0",
         script = function()
-            RainHUB("我正在做 只是不会很强")
+            RainHub("我正在做 只是不会很强")
         end
     },
     
