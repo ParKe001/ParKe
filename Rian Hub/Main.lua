@@ -1,23 +1,23 @@
---Rain Hub
---服务器分类执行(自愿漏库)
+-- Rain Hub
+-- 加载器
 
-local function RainHub(message)
+local function RainHub1(message)
     game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Rain HUB",
+        Title = "Rain Hub",
         Text = message,
         Duration = 5,
         Icon = "rbxassetid://121037083128250" 
     })
 end
 
-local GameDetector = {}
+local RainHub2 = {}
 
-GameDetector.GameList = {
+RainHub2.RainHub3 = {
     [7239319209] = {
         name = "ohio",
         version = "1.0",
         script = function()
-            RainHub("我正在做 只是不会很强")
+            RainHub1("我正在做 只是不会很强")
         end
     },
     
@@ -25,7 +25,7 @@ GameDetector.GameList = {
         name = "99夜大厅",
         version = "1.2",
         script = function()
-            RainHub("当前服务器为:99夜\n请进入组队后再执行此脚本")
+            RainHub1("当前服务器为:99夜\n请进入组队后再执行此脚本")
         end
     },
     
@@ -43,25 +43,38 @@ GameDetector.GameList = {
         script = function()
             loadstring(game:HttpGet("https://raw.githubusercontent.com/ParKe001/ParKe/refs/heads/main/Rian%20Hub/Jisulegend"))()
         end
+    },
+    
+    [106487781999308] = { 
+        name = "凌晨3点后大厅",
+        version = "1.1",
+        script = function()
+            RainHub1("当前服务器为:凌晨3点后\n请进入游戏后再执行此脚本")
+        end
+    },
+    
+    [138103330716004] = { 
+        name = "凌晨3点后",
+        version = "1.1",
+        script = function()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/ParKe001/ParKe/refs/heads/main/Rian%20Hub/After%203%20a.m."))()
+        end
     }
 }
 
-function GameDetector:Start()
-    local currentGameId = game.PlaceId
-    print(currentGameId)
+function RainHub2:RainHub4()
+    local RainHub5 = game.PlaceId
+    print(RainHub5)
     
-    local gameConfig = self.GameList[currentGameId]
+    local RainHub6 = self.RainHub3[RainHub5]
     
-    if gameConfig then
-        
-        local success, errorMsg = pcall(gameConfig.script)
-        if not success then
-            RainHub("脚本执行错误: " .. tostring(errorMsg))
-            warn("脚本错误:", errorMsg)
+    if RainHub6 then
+        local RainHub7, RainHub8 = pcall(RainHub6.script)
+        if not RainHub7 then
         end
     else
-        RainHub("暂时未添加这个服务器")
+        RainHub1("暂时未添加这个服务器")
     end
 end
 
-GameDetector:Start()
+RainHub2:RainHub4()
