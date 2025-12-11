@@ -1,3 +1,4 @@
+
 local a a={cache={}, load=function(b)if not a.cache[b]then a.cache[b]={c=a[b]()}end return a.cache[b].c end}do function a.a()return{
 
 
@@ -11928,17 +11929,17 @@ if not as.IgnoreAlerts then
 as:SetToTheCenter()
 as:Dialog{
 
-Title="Close Window",
-Content="Do you want to close this window? You will not be able to open it again.",
+Title="关闭Rain Hub",
+Content="你确定要关闭吗?",
 Buttons={
 {
-Title="Cancel",
+Title="误触",
 
 Callback=function()end,
 Variant="Secondary",
 },
 {
-Title="Close Window",
+Title="确定",
 
 Callback=function()as:Destroy()end,
 Variant="Primary",
