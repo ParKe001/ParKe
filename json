@@ -1,7 +1,6 @@
 {
-  "public_access": true,
-  "message": "🤔",
-  "keys": [
-    "12345678"
-  ]
+  "123456": {
+    "user": "All Users",
+    "expire": "2099-12-31"
+  }
 }
