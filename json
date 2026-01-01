@@ -1,5 +1,7 @@
 {
-  "status": "open",
-  "keys_available_for_all": true
-}  }
+  "public_access": true,
+  "message": "🤔",
+  "keys": [
+    "12345678"
+  ]
 }
