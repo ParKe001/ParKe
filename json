@@ -1,38 +1,5 @@
 {
-  "B8pL3mN9qR2T": {
-    "user": "euxjafrx",
-    "expire": "99999996-01-20"
-  },
-  "8TbW5hSx1jNv": {
-    "user": "igcgjebhb",
-    "expire": "2026-01-02"
-  },
-  "m4RzQ9pN2bYt": {
-    "user": "Wlikdsn",
-    "expire": "9999925-12-22"
-  },
-  "9GtYv2Hc6JnM": {
-    "user": "ff00015",
-    "expire": "2026-01-02"
-  },
-  "D7fX3LgV8qHz": {
-    "user": "zk3469a",
-    "expire": "20999999996-01-02"
-  },
-  "w3BqM8rT1sKp": {
-    "user": "zzysb2778",
-    "expire": "209999996-01-02"
-  },
-  "D7fX3LgV8qHz": {
-    "user": "zk3469a",
-    "expire": "20999999996-01-02"
-  },
-  "2nJ6sPk9L4Vf": {
-    "user": "dhjdhdhssiwiwoow",
-    "expire": "209999996-01-02"
-  },
-  "123456": {
-    "user": "kjgkgcy",
-    "expire": "2026-01-01"
-  }
+  "status": "open",
+  "keys_available_for_all": true
+}  }
 }
