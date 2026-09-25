@@ -2,41 +2,662 @@ repeat task.wait() until game:IsLoaded()
 if workspace.DistributedGameTime < 3 then
     task.wait(3 - workspace.DistributedGameTime)
 end
-Players = game:GetService("Players")
-plr = Players.LocalPlayer
-rs = game:GetService("RunService")
-run = true
-con = {}
-chr = nil
-hum = nil
-hea = nil
-rot = nil
-table.insert(con, rs.Heartbeat:Connect(function()
-    cc = plr.Character
-    if not cc or not cc.Parent then
-        chr, hum, hea, rot = nil, nil, nil, nil
+
+local Run = true
+local Plr = game:GetService("Players")
+local Loc = Plr.LocalPlayer
+
+local Cln = cloneref or clone_ref or clonereference or clone_reference
+local NCl = function(Obj)
+    if Cln then
+        local Suc, Res = pcall(Cln, Obj)
+        return Suc and Res or Obj
+    end
+    return Obj
+end
+
+local UIS = game:GetService("UserInputService")
+local RunS = game:GetService("RunService")
+local Cam = workspace.CurrentCamera
+
+local Cnn = {}
+
+local function GetR(Char)
+    return Char and (Char.PrimaryPart or Char:FindFirstChild("HumanoidRootPart"))
+end
+
+local function RemD(Obj)
+    if Obj then
+        pcall(function()
+            Obj:Remove()
+        end)
+    end
+end
+
+local ESPD = {}
+
+local function GetE(Plr)
+    local D = ESPD[Plr]
+    if not D then
+        D = Drawing.new("Text")
+        D.Size = 16
+        D.Center = true
+        D.Outline = true
+        D.Visible = false
+        ESPD[Plr] = D
+    end
+    return D
+end
+
+local function ClrE(Plr)
+    local D = ESPD[Plr]
+    if D then
+        RemD(D)
+        ESPD[Plr] = nil
+    end
+end
+
+table.insert(Cnn, Plr.PlayerRemoving:Connect(ClrE))
+
+local LCha = nil
+local LHum = nil
+local LHea = nil
+local LRoo = nil
+local SkiL = Loc:WaitForChild("PlayerGui", 9e9):WaitForChild("Lobby", 9e9):WaitForChild("UI_Skill", 9e9):WaitForChild("List", 9e9)
+local FunF = workspace:WaitForChild("Scene", 9e9):WaitForChild("Function", 9e9)
+local EveF = workspace:WaitForChild("Event", 9e9)
+local ShoR = EveF:WaitForChild("ShopModule_RemoteEvent", 9e9)
+local EquF = EveF:WaitForChild("Equipment_RemoteFunction", 9e9)
+local FirP = fireproximityprompt or fire_proximity_prompt
+
+local Cfg = {
+    AutoWeapon = false,
+    AutoFirstSkill = false,
+    AutoSecondSkill = false,
+
+    Speed = false,
+    SpeedAmount = 0.5,
+    InfiniteJump = false,
+
+    Attaching = false,
+    BackOffset = 1.5,
+    UpOffset = 1.25,
+    BodyVelocity = true,
+
+    ESPEnabled = false,
+    ESPShowNames = true,
+    ESPShowHealth = true,
+    ESPShowDistance = true,
+    ESPColor = Color3.fromRGB(255, 255, 255),
+
+    AutoForge = false,
+    AutoAbility = false,
+
+    AntiAFK = true,
+    AntiRagdoll = false,
+    GodMode = false,
+
+    FOVChanger = false,
+    FOVValue = 90
+}
+
+local VirU = NCl(game:GetService("VirtualUser"))
+table.insert(Cnn, Loc.Idled:Connect(function()
+    if Cfg.AntiAFK then
+        VirU:CaptureController()
+        VirU:ClickButton2(Vector2.new())
+    end
+end))
+
+table.insert(Cnn, RunS.Heartbeat:Connect(function()
+    local Cur = Loc.Character
+    if not Cur or not Cur.Parent then
+        LCha, LHum, LHea, LRoo = nil, nil, nil, nil
         return
     end
-    chr = cc
-    if not hum or hum.Parent ~= chr then
-        hum = chr:FindFirstChildOfClass("Humanoid")
+
+    LCha = Cur
+
+    if not LHum or LHum.Parent ~= LCha then
+        LHum = LCha:FindFirstChildOfClass("Humanoid")
     end
-    if not hea or hea.Parent ~= chr then
-        hea = chr:FindFirstChild("Head")
+
+    if not LHea or LHea.Parent ~= LCha then
+        LHea = LCha:FindFirstChild("Head")
     end
-    if not rot or rot.Parent ~= chr then
-        rot = chr.PrimaryPart
-            or chr:FindFirstChild("HumanoidRootPart")
-            or chr:FindFirstChild("Torso")
+
+    if not LRoo or LRoo.Parent ~= LCha then
+        LRoo = LCha.PrimaryPart or LCha:FindFirstChild("HumanoidRootPart") or LCha:FindFirstChild("Torso")
     end
 end))
 
-arg = true
-
-table.insert(con, rs.Heartbeat:Connect(function(dt)
-    if hum and arg and
-        ((hum:GetState() == Enum.HumanoidStateType.Ragdoll) or
-         (hum:GetState() == Enum.HumanoidStateType.FallingDown)) then
-        hum:ChangeState(Enum.HumanoidStateType.GettingUp)
+table.insert(Cnn, UIS.JumpRequest:Connect(function()
+    if Cfg.InfiniteJump and LHum then
+        LHum:ChangeState(Enum.HumanoidStateType.Jumping)
     end
 end))
+
+local function RunG(Act)
+    if Act then
+        EquF:InvokeServer({["TYPE"] = "CanPreview"})
+    else
+        EquF:InvokeServer({["TYPE"] = "ClosePreview"})
+    end
+end
+
+task.spawn(function()
+    while true do
+        if not Run then
+            break
+        end
+
+        if Cfg.GodMode then
+            RunG(true)
+            task.wait(2.45)
+        end
+
+        task.wait()
+    end
+end)
+
+local function UseS(SkiN, KeyC)
+    local Ski = LCha and SkiL:FindFirstChild(SkiN)
+    if not Ski then
+        return
+    end
+
+    local FraS = Ski:FindFirstChild("Frame_Status")
+    if not FraS then
+        return
+    end
+
+    local FraC = FraS:FindFirstChild("Frame_CD")
+    if not FraC or FraC.Size.Y.Scale ~= 0 then
+        return
+    end
+
+    local Com = LCha:FindFirstChild("Communicate")
+    if Com and Com:IsA("RemoteEvent") then
+        Com:FireServer({
+            ["Key"] = KeyC, ["State"] = Enum.UserInputState.Begin
+        })
+    end
+end
+
+task.spawn(function()
+    while true do
+        if not Run then
+            break
+        end
+
+        if Cfg.AutoWeapon then
+            UseS("Skill1", Enum.KeyCode.Four)
+        end
+
+        if Cfg.AutoFirstSkill then
+            UseS("Skill2", Enum.KeyCode.Two)
+        end
+
+        if Cfg.AutoSecondSkill then
+            UseS("Skill3", Enum.KeyCode.Three)
+        end
+
+        task.wait(0.075)
+    end
+end)
+
+table.insert(Cnn, RunS.Heartbeat:Connect(function(DelT)
+    if Cfg.FOVChanger then
+        Cam.FieldOfView = Cfg.FOVValue
+    end
+
+    if Cfg.Speed and LHum and LRoo then
+        local MovD = LHum.MoveDirection
+        if MovD.Magnitude > 0 then
+            LRoo.CFrame += MovD * Cfg.SpeedAmount
+        end
+    end
+
+    if LHum and Cfg.AntiRagdoll and ((LHum:GetState() == Enum.HumanoidStateType.Ragdoll) or (LHum:GetState() == Enum.HumanoidStateType.FallingDown)) then
+        LHum:ChangeState(Enum.HumanoidStateType.GettingUp)
+    end
+
+    if Cfg.Attaching then
+        if not LRoo or not Loc:GetAttribute("InDuel") then
+            return
+        end
+
+        local CloR = nil
+        local BigD = 185
+        for _,Pl in ipairs(Plr:GetPlayers()) do
+            if Pl == Loc then
+                continue
+            end
+
+            if not Pl:GetAttribute("InDuel") then
+                continue
+            end
+
+            local Cha = Pl.Character
+            if not Cha then
+                continue
+            end
+
+            local Roo = GetR(Cha)
+            if not Roo then
+                continue
+            end
+
+            local Mag = (LRoo.Position - Roo.Position).Magnitude
+            if Mag < BigD then
+                CloR = Roo
+                BigD = Mag
+            end
+        end
+
+        if CloR then
+            local CloC = CloR.CFrame
+            LRoo.CFrame = CFrame.lookAt((CloC * CFrame.new(0, Cfg.UpOffset, Cfg.BackOffset)).Position, CloC.Position)
+            if Cfg.BodyVelocity then
+                local BodV = LRoo:FindFirstChildOfClass("BodyVelocity")
+                if BodV then
+                    BodV.MaxForce = Vector3.new(5000, 5000, 5000)
+                end
+            end
+        end
+    elseif Cfg.BodyVelocity then
+        local BodV = LRoo and LRoo:FindFirstChildOfClass("BodyVelocity")
+        if BodV then
+            BodV.MaxForce = Vector3.zero
+        end
+    end
+
+    for _,Pl in ipairs(Plr:GetPlayers()) do
+        if Pl == Loc then
+            continue
+        end
+
+        local ESP = GetE(Pl)
+        local IsV = nil
+
+        local Cha = Pl.Character
+        local Hea = Cha and Cha:FindFirstChild("Head")
+        local Hum = Cha and Cha:FindFirstChildOfClass("Humanoid")
+
+        if Cfg.ESPEnabled and Hea and Hum and Hum.Health > 0 then
+            local Scr, OnS = Cam:WorldToViewportPoint(Hea.Position)
+            if OnS then
+                IsV = true
+
+                local TexP = {}
+                if Cfg.ESPShowNames then
+                    table.insert(TexP, Pl.DisplayName)
+                end
+
+                if Cfg.ESPShowHealth then
+                    table.insert(TexP, string.format("[%d 血量]", math.floor(Hum.Health)))
+                end
+
+                if LRoo and Cfg.ESPShowDistance then
+                    table.insert(TexP, string.format("[%d 米]", math.floor((LRoo.Position - Hea.Position).Magnitude)))
+                end
+
+                if #TexP > 0 then
+                    ESP.Text = table.concat(TexP, "\n")
+                    ESP.Position = Vector2.new(Scr.X - 40, Scr.Y - 40)
+                    ESP.Color = Cfg.ESPColor
+                    ESP.Visible = true
+                else
+                    ESP.Visible = false
+                end
+            end
+        end
+
+        if not IsV then
+            ESP.Visible = false
+        end
+    end
+
+    for Pl in next, ESPD do
+        if Pl.Parent ~= Plr then
+            ClrE(Pl)
+        end
+    end
+end))
+
+if FirP then
+    task.spawn(function()
+        while true do
+            if not Run then
+                break
+            end
+
+            if Cfg.AutoForge then
+                if FunF:FindFirstChild("WeaponGacha") then
+                    FirP(FunF.WeaponGacha.TouchBox.ProximityPrompt)
+                    ShoR:FireServer({
+                        ["Data"] = { ["ID"] = "420001", ["TYPE"] = "Gold" },
+                        ["TYPE"] = "Gashapon"
+                    })
+                end
+            end
+
+            if Cfg.AutoAbility then
+                pcall(function()
+                    if FunF:FindFirstChild("AbilityGacha") then
+                        FirP(FunF.AbilityGacha.TouchPart.ProximityPrompt)
+                        ShoR:FireServer({
+                            ["Data"] = { ["ID"] = "420004", ["TYPE"] = "Gold" },
+                            ["TYPE"] = "Gashapon"
+                        })
+                    end
+                end)
+            end
+
+            task.wait(0.5)
+        end
+    end)
+end
+
+local Lib
+if not pcall(function()
+    Lib = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+end) then
+    return Loc:Kick("anti")
+end
+
+local Win = Lib:CreateWindow({
+    Title = "决斗战士中心",
+    SubTitle = "由 Nikoleto 脚本制作",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 460),
+    Acrylic = false,
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.LeftControl
+})
+
+local Tab = {
+    Combat = Win:AddTab({
+        Title = "战斗",
+        Icon = "swords"
+    }), Farming = Win:AddTab({
+        Title = "刷取",
+        Icon = "skull"
+    }), Visuals = Win:AddTab({
+        Title = "视觉",
+        Icon = "eye"
+    }), GachaShop = Win:AddTab({
+        Title = "商店",
+        Icon = "shopping-cart"
+    }), Miscellaneous = Win:AddTab({
+        Title = "杂项",
+        Icon = "component"
+    })
+}
+
+Tab.Combat:AddToggle("AutoWeaponToggle", {
+    Title = "自动武器",
+    Default = Cfg.AutoWeapon
+}):OnChanged(function(Val)
+    Cfg.AutoWeapon = Val
+end)
+
+Tab.Combat:AddToggle("AutoFirstSkillToggle", {
+    Title = "自动一技能",
+    Default = Cfg.AutoFirstSkill
+}):OnChanged(function(Val)
+    Cfg.AutoFirstSkill = Val
+end)
+
+Tab.Combat:AddToggle("AutoSecondSkillToggle", {
+    Title = "自动二技能",
+    Default = Cfg.AutoSecondSkill
+}):OnChanged(function(Val)
+    Cfg.AutoSecondSkill = Val
+end)
+
+Tab.Combat:AddButton({
+    Title = "开启全部技能",
+    Description = "快速开启所有技能开关",
+    Callback = function()
+       Lib.Options.AutoWeaponToggle:SetValue(true)
+       Lib.Options.AutoFirstSkillToggle:SetValue(true)
+       Lib.Options.AutoSecondSkillToggle:SetValue(true)
+    end
+})
+
+Tab.Combat:AddToggle("SpeedToggle", {
+    Title = "速度修改",
+    Default = Cfg.Speed
+}):OnChanged(function(Val)
+    Cfg.Speed = Val
+end)
+
+Tab.Combat:AddSlider("SpeedAmountSlider", {
+    Title = "速度数值",
+    Default = Cfg.SpeedAmount * 100,
+    Min = 0,
+    Max = 500,
+    Rounding = 0.1,
+    Callback = function(Val)
+        Cfg.SpeedAmount = Val * 0.01
+    end
+})
+
+Tab.Combat:AddToggle("InfiniteJumpToggle", {
+    Title = "无限跳跃",
+    Default = Cfg.InfiniteJump
+}):OnChanged(function(Val)
+    Cfg.InfiniteJump = Val
+end)
+
+Tab.Farming:AddToggle("PlayerAttachToggle", {
+    Title = "玩家吸附",
+    Default = Cfg.Attaching
+}):OnChanged(function(Val)
+    Cfg.Attaching = Val
+end)
+
+Tab.Farming:AddToggle("BodyVelocityToggle", {
+    Title = "身体速度",
+    Default = Cfg.BodyVelocity
+}):OnChanged(function(Val)
+    Cfg.BodyVelocity = Val
+
+    local BodV = LRoo and LRoo:FindFirstChildOfClass("BodyVelocity")
+    if not Val then
+        if BodV then
+            BodV:Destroy()
+        end
+        return
+    end
+
+    if not BodV and LRoo then
+        BodV = NCl(Instance.new("BodyVelocity"))
+        BodV.MaxForce = Vector3.zero
+        BodV.Velocity = Vector3.zero
+        BodV.Parent = LRoo
+    end
+end)
+
+Tab.Farming:AddSlider("BackOffsetSlider", {
+    Title = "后方偏移",
+    Description = "修改你在目标后方的距离",
+    Default = Cfg.BackOffset,
+    Min = 0.05,
+    Max = 3,
+    Rounding = 0.5,
+    Callback = function(Val)
+        Cfg.BackOffset = Val
+    end
+})
+
+Tab.Farming:AddSlider("UpOffsetSlider", {
+    Title = "上方偏移",
+    Description = "修改你在目标上方的距离",
+    Default = Cfg.UpOffset,
+    Min = 0.05,
+    Max = 3,
+    Rounding = 0.5,
+    Callback = function(Val)
+        Cfg.UpOffset = Val
+    end
+})
+
+Tab.Visuals:AddToggle("ESPEnabledToggle", {
+    Title = "开启透视",
+    Default = Cfg.ESPEnabled
+}):OnChanged(function(Val)
+    Cfg.ESPEnabled = Val
+end)
+
+Tab.Visuals:AddToggle("ESPShowNamesToggle", {
+    Title = "显示名字",
+    Default = Cfg.ESPShowNames
+}):OnChanged(function(Val)
+    Cfg.ESPShowNames = Val
+end)
+
+Tab.Visuals:AddToggle("ESPShowHealthToggle", {
+    Title = "显示血量",
+    Default = Cfg.ESPShowHealth
+}):OnChanged(function(Val)
+    Cfg.ESPShowHealth = Val
+end)
+
+Tab.Visuals:AddToggle("ESPShowDistanceToggle", {
+    Title = "显示距离",
+    Default = Cfg.ESPShowDistance
+}):OnChanged(function(Val)
+    Cfg.ESPShowDistance = Val
+end)
+
+Tab.Visuals:AddColorpicker("ESPColorPicker", {
+    Title = "透视颜色",
+    Default = Cfg.ESPColor
+}):OnChanged(function(Val)
+    Cfg.ESPColor = Val
+end)
+
+if FirP then
+    Tab.GachaShop:AddToggle("AutoForgeToggle", {
+        Title = "自动锻造武器",
+        Default = Cfg.AutoForge
+    }):OnChanged(function(Val)
+        Cfg.AutoForge = Val
+    end)
+
+    Tab.GachaShop:AddToggle("AutoAbilityToggle", {
+        Title = "自动购买技能",
+        Default = Cfg.AutoAbility
+    }):OnChanged(function(Val)
+        Cfg.AutoAbility = Val
+    end)
+
+    Tab.GachaShop:AddButton({
+        Title = "锻造武器（单次）",
+        Callback = function()
+            if FunF:FindFirstChild("WeaponGacha") then
+                FirP(FunF.WeaponGacha.TouchBox.ProximityPrompt)
+                task.delay(1, function()
+                    ShoR:FireServer({
+                        ["Data"] = {["ID"] = "420001", ["TYPE"] = "Gold"},
+                        ["TYPE"] = "Gashapon"
+                    })
+                end)
+            end
+        end
+    })
+
+     Tab.GachaShop:AddButton({
+        Title = "购买技能（单次）",
+        Callback = function()
+            if FunF:FindFirstChild("AbilityGacha") then
+                FirP(FunF.AbilityGacha.TouchPart.ProximityPrompt)
+                task.delay(1, function()
+                    ShoR:FireServer({
+                        ["Data"] = {["ID"] = "420004", ["TYPE"] = "Gold"},
+                        ["TYPE"] = "Gashapon"
+                    })
+                end)
+            end
+        end
+    })
+else
+    Tab.GachaShop:AddParagraph({
+        Title = "错误",})
+end
+
+Tab.Miscellaneous:AddToggle("AntiAFKToggle", {
+    Title = "防挂机",
+    Default = Cfg.AntiAFK
+}):OnChanged(function(Val)
+    Cfg.AntiAFK = Val
+end)
+
+Tab.Miscellaneous:AddParagraph({
+    Title = "无敌模式",
+})
+
+Tab.Miscellaneous:AddToggle("GodModeToggle", {
+    Title = "无敌模式",
+    Default = Cfg.GodMode
+}):OnChanged(function(Val)
+    Cfg.GodMode = Val
+    if not Val then
+        task.delay(0.1, RunG)
+    end
+end)
+
+Tab.Miscellaneous:AddToggle("AntiRagdollToggle", {
+    Title = "防布娃娃",
+    Default = Cfg.AntiRagdoll
+}):OnChanged(function(Val)
+    Cfg.AntiRagdoll = Val
+end)
+
+Tab.Miscellaneous:AddToggle("FOVChangerToggle", {
+    Title = "视野修改",
+    Default = Cfg.FOVChanger
+}):OnChanged(function(Val)
+    Cfg.FOVChanger = Val
+    if not Val then
+        Cam.FieldOfView = 70
+    end
+end)
+
+Tab.Miscellaneous:AddSlider("FOVValueSlider", {
+    Title = "视野数值",
+    Default = Cfg.FOVValue,
+    Min = 70,
+    Max = 120,
+    Rounding = 1,
+    Callback = function(Val)
+        Cfg.FOVValue = Val
+    end
+})
+
+Win:SelectTab(1)
+while true do
+    if Lib.Unloaded then
+        Run = false
+
+        for Idx, Cnn2 in next, Cnn do
+            Cnn2:Disconnect()
+            Cnn[Idx] = nil
+        end
+        task.wait()
+
+        if Cfg.GodMode then
+            RunG(false)
+        end
+
+        for Pl in next, ESPD do
+            ClrE(Pl)
+        end
+
+        Cam.FieldOfView = 70
+        break
+    end
+    task.wait(0.25)
+end
