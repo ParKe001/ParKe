@@ -1,3 +1,268 @@
+do
+plr=game:GetService("Players")
+a=plr.LocalPlayer
+b=a.Character or a.CharacterAdded:Wait()
+c=b:WaitForChild("Humanoid")
+d=b:WaitForChild("HumanoidRootPart")
+e=20
+f=0
+g=false
+function h()
+for _,v in ipairs(a.Backpack:GetChildren())do
+if v:IsA("Tool")and(v.Name:lower():find("bomb")or v.Name:lower():find("c4"))then
+return v
+end
+end
+for _,v in ipairs(b:GetChildren())do
+if v:IsA("Tool")and(v.Name:lower():find("bomb")or v.Name:lower():find("c4"))then
+return v
+end
+end
+return nil
+end
+function i()
+j=h()
+if not j then
+return
+end
+c.UseJumpPower=true
+c.JumpPower=50
+if j.Parent~=b then
+c:EquipTool(j)
+task.wait(0.2)
+end
+k=j:WaitForChild("Remote")
+c:ChangeState(Enum.HumanoidStateType.Jumping)
+repeat task.wait()
+until
+c:GetState()==Enum.HumanoidStateType.Freefall
+repeat task.wait()
+until
+d.AssemblyLinearVelocity.Y<=5
+k:FireServer(d.CFrame,50)
+repeat task.wait()
+until
+d.AssemblyLinearVelocity.Y<-5
+c:ChangeState(Enum.HumanoidStateType.Jumping)
+end
+l=Instance.new("ScreenGui")
+l.Name="BombJumpGui"
+l.ResetOnSpawn=false
+l.Parent=a:WaitForChild("PlayerGui")
+m=Instance.new("TextButton")
+m.Size=UDim2.new(0,56,0,56)
+m.Position=UDim2.new(1,-76,0.5,-98)
+m.BackgroundColor3=Color3.fromRGB(25,25,25)
+m.TextColor3=Color3.fromRGB(255,255,255)
+m.Text="Jump"
+m.Font=Enum.Font.GothamBold
+m.TextSize=13
+m.AutoButtonColor=false
+m.BorderSizePixel=0
+m.Parent=l
+n=Instance.new("UICorner")
+n.CornerRadius=UDim.new(0,10)
+n.Parent=m
+o=Instance.new("UIGradient")
+o.Color=ColorSequence.new{
+ColorSequenceKeypoint.new(0,Color3.fromRGB(60,60,60)),
+ColorSequenceKeypoint.new(1,Color3.fromRGB(20,20,20))
+}
+o.Rotation=90
+o.Parent=m
+p=Instance.new("UIStroke")
+p.Color=Color3.fromRGB(0,0,0)
+p.Thickness=1.5
+p.Parent=m
+q=Instance.new("Frame")
+q.Size=UDim2.new(1,-12,0,5)
+q.Position=UDim2.new(0,6,1,-9)
+q.BackgroundColor3=Color3.fromRGB(15,15,15)
+q.BorderSizePixel=0
+q.Parent=m
+r=Instance.new("UICorner")
+r.CornerRadius=UDim.new(1,0)
+r.Parent=q
+s=Instance.new("Frame")
+s.Size=UDim2.new(0,0,1,0)
+s.BackgroundColor3=Color3.fromRGB(0,200,100)
+s.BorderSizePixel=0
+s.Parent=q
+t=Instance.new("UICorner")
+t.CornerRadius=UDim.new(1,0)
+t.Parent=s
+function u()
+while true do
+task.wait(0.05)
+v=tick()
+w=v-f
+if w>=e then
+s.Size=UDim2.new(1,0,1,0)
+s.BackgroundColor3=Color3.fromRGB(0,200,100)
+m.Text="Jump"
+m.BackgroundColor3=Color3.fromRGB(25,25,25)
+else
+x=w/e
+s.Size=UDim2.new(x,0,1,0)
+s.BackgroundColor3=Color3.fromRGB(200,150,0)
+m.Text=string.format("%.0f",e-w)
+m.BackgroundColor3=Color3.fromRGB(60,50,30)
+end
+end
+end
+task.spawn(u)
+m.MouseButton1Down:Connect(function()
+m.BackgroundColor3=Color3.fromRGB(70,70,70)
+end
+)
+m.MouseButton1Up:Connect(function()
+if tick()-f>=e then
+m.BackgroundColor3=Color3.fromRGB(25,25,25)
+end
+end
+)
+m.MouseButton1Click:Connect(function()
+if g then return
+end
+if tick()-f<e then
+return
+end
+if not h()then
+return
+end
+g=true
+f=tick()
+y,err=pcall(i)
+g=false
+end
+)
+end
+do
+Ply=game:GetService("Players")
+Run=game:GetService("RunService")
+Lcl=Ply.LocalPlayer
+RHg={enabled=true,refreshRate=0.25,fillAlpha=0.6,outlineAlpha=1,showSelf=false,color={sheriff=Color3.fromRGB(40,110,255),murderer=Color3.fromRGB(230,40,40),innocent=Color3.fromRGB(40,200,90)}}
+function ali(p)
+c=p.Character
+if not c then return false end
+h=c:FindFirstChildOfClass("Humanoid")
+return h and h.Health>0
+end
+function car(p,tnm)
+if not p then return false end
+bp=p:FindFirstChild("Backpack")
+if bp and bp:FindFirstChild(tnm) then return true end
+c=p.Character
+if c and c:FindFirstChild(tnm) then return true end
+return false
+end
+function isM(p)
+if p==Lcl or not ali(p) then return false end
+return car(p,"Knife")
+end
+function isS(p)
+if p==Lcl or not ali(p) then return false end
+return car(p,"Gun")
+end
+function rol(p)
+if isM(p) then return "murderer" end
+if isS(p) then return "sheriff" end
+return "innocent"
+end
+function col(p)
+return RHg.color[rol(p)]
+end
+hls={}
+function ghl(mdl)
+if not mdl then return nil end
+hl=hls[mdl]
+if hl and hl.Parent==mdl then return hl end
+old=mdl:FindFirstChild("__RoleHL")
+if old then old:Destroy() end
+h=Instance.new("Highlight")
+h.Name="__RoleHL"
+h.FillTransparency=1-RHg.fillAlpha
+h.OutlineTransparency=1-RHg.outlineAlpha
+h.DepthMode=Enum.HighlightDepthMode.AlwaysOnTop
+h.Adornee=mdl
+h.Parent=mdl
+hls[mdl]=h
+return h
+end
+function rhl(mdl)
+hl=hls[mdl]
+if hl then pcall(function() hl:Destroy() end) end
+hls[mdl]=nil
+end
+function pnt(p)
+if not RHg.enabled then return end
+if p==Lcl and not RHg.showSelf then return end
+c=p.Character
+if not c then return end
+cl=col(p)
+hl=ghl(c)
+if hl then
+hl.FillColor=cl
+hl.OutlineColor=cl
+end
+end
+function rfa()
+if not RHg.enabled then return end
+for _,p in ipairs(Ply:GetPlayers()) do
+if p~=Lcl or RHg.showSelf then
+if p.Character then
+pnt(p)
+end
+end
+end
+for mdl in pairs(hls) do
+if not mdl.Parent then
+rhl(mdl)
+end
+end
+end
+function bnd(p)
+if p==Lcl and not RHg.showSelf then
+return
+end
+p.CharacterAdded:Connect(function(c)
+task.wait(0.15)
+pnt(p)
+end)
+task.spawn(function()
+while p.Parent do
+bp=p:FindFirstChildOfClass("Backpack")
+if bp then break end
+task.wait(0.2)
+end
+bp=p:FindFirstChildOfClass("Backpack")
+if bp then
+bp.ChildAdded:Connect(function() task.wait(0.05); pnt(p) end)
+bp.ChildRemoved:Connect(function() task.wait(0.05); pnt(p) end)
+end
+c=p.Character
+if c then
+c.ChildAdded:Connect(function() task.wait(0.05); pnt(p) end)
+c.ChildRemoved:Connect(function() task.wait(0.05); pnt(p) end)
+end
+end)
+end
+for _,p in ipairs(Ply:GetPlayers()) do
+bnd(p)
+end
+Ply.PlayerAdded:Connect(bnd)
+Ply.PlayerRemoving:Connect(function(p)
+if p.Character then rhl(p.Character) end
+end)
+task.spawn(function()
+while task.wait(RHg.refreshRate) do
+rfa()
+end
+end)
+rfa()
+_G.MM2Roles={isMurderer=isM,isSheriff=isS,roleOf=rol,colorOf=col,refresh=rfa,RH=RHg}
+end
+do
 screenGui=Instance.new("ScreenGui")
 screenGui.Name="ShootButtonGui"
 screenGui.ResetOnSpawn=false
@@ -147,6 +412,16 @@ beginDrag(panel,input)
 end
 end
 )
+
+jumpBtn=l.Parent:WaitForChild("BombJumpGui"):WaitForChild("TextButton") or l.Parent:FindFirstChild("BombJumpGui")
+if jumpBtn then
+jumpBtn.InputBegan:Connect(function(input)
+if input.UserInputType==Enum.UserInputType.Touch or input.UserInputType==Enum.UserInputType.MouseButton1 then
+beginDrag(jumpBtn,input)
+end
+end
+)
+end
 
 UserInputService=game:GetService("UserInputService")
 
@@ -454,3 +729,4 @@ button.Text="shoot"
 pcall(executeOnce)
 end
 )
+end
