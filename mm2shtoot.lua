@@ -7,6 +7,11 @@ d=b:WaitForChild("HumanoidRootPart")
 e=20
 f=0
 g=false
+a.CharacterAdded:Connect(function(ch)
+b=ch
+c=ch:WaitForChild("Humanoid")
+d=ch:WaitForChild("HumanoidRootPart")
+end)
 function h()
 for _,v in ipairs(a.Backpack:GetChildren())do
 if v:IsA("Tool")and(v.Name:lower():find("bomb")or v.Name:lower():find("c4"))then
@@ -32,17 +37,22 @@ c:EquipTool(j)
 task.wait(0.2)
 end
 k=j:WaitForChild("Remote")
+d=b:WaitForChild("HumanoidRootPart")
 c:ChangeState(Enum.HumanoidStateType.Jumping)
+local t0=tick()
 repeat task.wait()
 until
-c:GetState()==Enum.HumanoidStateType.Freefall
+c:GetState()==Enum.HumanoidStateType.Freefall or tick()-t0>3
+if c:GetState()~=Enum.HumanoidStateType.Freefall then return end
+t0=tick()
 repeat task.wait()
 until
-d.AssemblyLinearVelocity.Y<=5
+d.AssemblyLinearVelocity.Y<=5 or tick()-t0>3
 k:FireServer(d.CFrame,50)
+t0=tick()
 repeat task.wait()
 until
-d.AssemblyLinearVelocity.Y<-5
+d.AssemblyLinearVelocity.Y<-5 or tick()-t0>3
 c:ChangeState(Enum.HumanoidStateType.Jumping)
 end
 l=Instance.new("ScreenGui")
@@ -136,6 +146,7 @@ y,err=pcall(i)
 g=false
 end
 )
+_G.BombJumpGuiRef=l
 end
 do
 Ply=game:GetService("Players")
@@ -413,7 +424,8 @@ end
 end
 )
 
-jumpBtn=l.Parent:WaitForChild("BombJumpGui"):WaitForChild("TextButton") or l.Parent:FindFirstChild("BombJumpGui")
+jumpGui=_G.BombJumpGuiRef or game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild("BombJumpGui")
+jumpBtn=jumpGui and jumpGui:FindFirstChild("TextButton")
 if jumpBtn then
 jumpBtn.InputBegan:Connect(function(input)
 if input.UserInputType==Enum.UserInputType.Touch or input.UserInputType==Enum.UserInputType.MouseButton1 then
@@ -488,6 +500,22 @@ end
 if CFG.teamSafe and p.Team and p.Team==LocalPlayer.Team then return false
 end
 return true
+end
+
+function isGunTarget(p)
+if p==LocalPlayer or not alive(p)then return false
+end
+if _G.MM2Roles and _G.MM2Roles.isMurderer then
+return _G.MM2Roles.isMurderer(p)
+end
+local c=p.Character
+if not c then return false
+end
+local bp=p:FindFirstChild("Backpack")
+if(c and c:FindFirstChild("Knife"))or(bp and bp:FindFirstChild("Knife"))then
+return true
+end
+return false
 end
 
 PARTS={"Head","UpperTorso","LowerTorso","Torso","HumanoidRootPart"}
@@ -694,6 +722,24 @@ end
 return best
 end
 
+function nearestGunTarget()
+r=myRoot()
+if not r then return nil
+end
+best,bestD=nil,math.huge
+for _,p in ipairs(Players:GetPlayers())do
+if isGunTarget(p)then
+ctr=centerOf(p.Character)
+if ctr then
+d=(ctr-r.Position).Magnitude
+if d<bestD and d<=CFG.range then best,bestD=p,d
+end
+end
+end
+end
+return best
+end
+
 function executeOnce()
 c=ch()
 if not c then return
@@ -701,22 +747,25 @@ end
 r=myRoot()
 if not r then return
 end
-tgt=nearestEnemy()
-if not tgt then return
-end
-ctr=centerOf(tgt.Character)
-dist=ctr and(ctr-r.Position).Magnitude or math.huge
 if CFG.autoShoot and getGun()and now()-lastShot>=CFG.shootDelay then
+gt=nearestGunTarget()
+if gt then
 lastShot=now()
-doShoot(tgt)
+doShoot(gt)
+end
 end
 if getKnife()then
+et=nearestEnemy()
+if et then
+ctr=centerOf(et.Character)
+dist=ctr and(ctr-r.Position).Magnitude or math.huge
 if dist<=CFG.stabRange and CFG.autoStab then
-doStab(tgt)
+doStab(et)
 elseif
 CFG.autoThrow and now()-lastThrow>=CFG.throwDelay then
 lastThrow=now()
-doThrow(tgt)
+doThrow(et)
+end
 end
 end
 end
