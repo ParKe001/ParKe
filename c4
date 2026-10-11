@@ -1,0 +1,139 @@
+do
+plr=game:GetService("Players")
+a=plr.LocalPlayer
+b=a.Character or a.CharacterAdded:Wait()
+c=b:WaitForChild("Humanoid")
+d=b:WaitForChild("HumanoidRootPart")
+e=20
+f=0
+g=false
+function h()
+for _,v in ipairs(a.Backpack:GetChildren())do
+if v:IsA("Tool")and(v.Name:lower():find("bomb")or v.Name:lower():find("c4"))then
+return v
+end
+end
+for _,v in ipairs(b:GetChildren())do
+if v:IsA("Tool")and(v.Name:lower():find("bomb")or v.Name:lower():find("c4"))then
+return v
+end
+end
+return nil
+end
+function i()
+j=h()
+if not j then
+return
+end
+c.UseJumpPower=true
+c.JumpPower=50
+if j.Parent~=b then
+c:EquipTool(j)
+task.wait(0.2)
+end
+k=j:WaitForChild("Remote")
+c:ChangeState(Enum.HumanoidStateType.Jumping)
+repeat task.wait()
+until
+c:GetState()==Enum.HumanoidStateType.Freefall
+repeat task.wait()
+until
+d.AssemblyLinearVelocity.Y<=5
+k:FireServer(d.CFrame,50)
+repeat task.wait()
+until
+d.AssemblyLinearVelocity.Y<-5
+c:ChangeState(Enum.HumanoidStateType.Jumping)
+end
+l=Instance.new("ScreenGui")
+l.Name="BombJumpGui"
+l.ResetOnSpawn=false
+l.Parent=a:WaitForChild("PlayerGui")
+m=Instance.new("TextButton")
+m.Size=UDim2.new(0,56,0,56)
+m.Position=UDim2.new(1,-76,0.5,-98)
+m.BackgroundColor3=Color3.fromRGB(25,25,25)
+m.TextColor3=Color3.fromRGB(255,255,255)
+m.Text="Jump"
+m.Font=Enum.Font.GothamBold
+m.TextSize=13
+m.AutoButtonColor=false
+m.BorderSizePixel=0
+m.Parent=l
+n=Instance.new("UICorner")
+n.CornerRadius=UDim.new(0,10)
+n.Parent=m
+o=Instance.new("UIGradient")
+o.Color=ColorSequence.new{
+ColorSequenceKeypoint.new(0,Color3.fromRGB(60,60,60)),
+ColorSequenceKeypoint.new(1,Color3.fromRGB(20,20,20))
+}
+o.Rotation=90
+o.Parent=m
+p=Instance.new("UIStroke")
+p.Color=Color3.fromRGB(0,0,0)
+p.Thickness=1.5
+p.Parent=m
+q=Instance.new("Frame")
+q.Size=UDim2.new(1,-12,0,5)
+q.Position=UDim2.new(0,6,1,-9)
+q.BackgroundColor3=Color3.fromRGB(15,15,15)
+q.BorderSizePixel=0
+q.Parent=m
+r=Instance.new("UICorner")
+r.CornerRadius=UDim.new(1,0)
+r.Parent=q
+s=Instance.new("Frame")
+s.Size=UDim2.new(0,0,1,0)
+s.BackgroundColor3=Color3.fromRGB(0,200,100)
+s.BorderSizePixel=0
+s.Parent=q
+t=Instance.new("UICorner")
+t.CornerRadius=UDim.new(1,0)
+t.Parent=s
+function u()
+while true do
+task.wait(0.05)
+v=tick()
+w=v-f
+if w>=e then
+s.Size=UDim2.new(1,0,1,0)
+s.BackgroundColor3=Color3.fromRGB(0,200,100)
+m.Text="Jump"
+m.BackgroundColor3=Color3.fromRGB(25,25,25)
+else
+x=w/e
+s.Size=UDim2.new(x,0,1,0)
+s.BackgroundColor3=Color3.fromRGB(200,150,0)
+m.Text=string.format("%.0f",e-w)
+m.BackgroundColor3=Color3.fromRGB(60,50,30)
+end
+end
+end
+task.spawn(u)
+m.MouseButton1Down:Connect(function()
+m.BackgroundColor3=Color3.fromRGB(70,70,70)
+end
+)
+m.MouseButton1Up:Connect(function()
+if tick()-f>=e then
+m.BackgroundColor3=Color3.fromRGB(25,25,25)
+end
+end
+)
+m.MouseButton1Click:Connect(function()
+if g then return
+end
+if tick()-f<e then
+return
+end
+if not h()then
+return
+end
+g=true
+f=tick()
+y,err=pcall(i)
+g=false
+end
+)
+end
