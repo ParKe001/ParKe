@@ -39,20 +39,16 @@ end
 k=j:WaitForChild("Remote")
 d=b:WaitForChild("HumanoidRootPart")
 c:ChangeState(Enum.HumanoidStateType.Jumping)
-local t0=tick()
 repeat task.wait()
 until
-c:GetState()==Enum.HumanoidStateType.Freefall or tick()-t0>3
-if c:GetState()~=Enum.HumanoidStateType.Freefall then return end
-t0=tick()
+c:GetState()==Enum.HumanoidStateType.Freefall
 repeat task.wait()
 until
-d.AssemblyLinearVelocity.Y<=5 or tick()-t0>3
+d.AssemblyLinearVelocity.Y<=5
 k:FireServer(d.CFrame,50)
-t0=tick()
 repeat task.wait()
 until
-d.AssemblyLinearVelocity.Y<-5 or tick()-t0>3
+d.AssemblyLinearVelocity.Y<-5
 c:ChangeState(Enum.HumanoidStateType.Jumping)
 end
 l=Instance.new("ScreenGui")
@@ -121,6 +117,19 @@ end
 end
 end
 task.spawn(u)
+function hasC4()
+local tc=h()
+return tc~=nil
+end
+task.spawn(function()
+while task.wait(0.3) do
+if hasC4() then
+m.TextColor3=Color3.fromRGB(255,255,255)
+else
+m.TextColor3=Color3.fromRGB(120,120,120)
+end
+end
+end)
 m.MouseButton1Down:Connect(function()
 m.BackgroundColor3=Color3.fromRGB(70,70,70)
 end
