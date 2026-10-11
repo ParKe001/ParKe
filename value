@@ -1,0 +1,43 @@
+rns=game:GetService("RunService")
+a=math.huge
+b="Magazine"
+c={}
+function d(e)
+return typeof(e)=="Instance"
+and e:IsA("ValueBase")
+end
+function f(g)
+if c[g]then return
+end
+c[g]=true
+function h()
+pcall(function()
+g.Value=a
+end
+)
+end
+h()
+i=rns.Heartbeat:Connect(function()
+if g and g.Parent then
+h()
+else
+i:Disconnect()
+c[g]=nil
+end
+end
+)
+end
+function j(k)
+for _,e in ipairs(k:GetDescendants())do
+if e.Name==b and d(e)then
+f(e)
+end
+end
+end
+j(workspace)
+workspace.DescendantAdded:Connect(function(e)
+if e.Name==b and d(e)then
+f(e)
+end
+end
+)
